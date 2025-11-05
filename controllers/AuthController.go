@@ -74,5 +74,15 @@ func AuthControllerLogin(c *gin.Context) {
 	comparePassword := utils.VerifyHashPassword(*body.Password, *UserBody.Password)
 	if !comparePassword {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "The password didn't match"})
+
+	} else {
+		token, err := utils.GenerateJwt(*UserBody.Name, *UserBody.Name)
+		if err != nil {
+			c.JSON(http.StatusFailedDependency, gin.H{"message": "Error in parsing the jwt"})
+		}
+		c.SetCookie("token", token, 3600, "/", "localhost", true, true)
+
+		c.JSON(http.StatusAccepted, gin.H{"message": "You are successfully logged in"})
 	}
+
 }

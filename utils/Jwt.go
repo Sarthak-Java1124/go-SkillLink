@@ -27,3 +27,12 @@ func GenerateJwt(name string, email string) (string, error) {
 	return token.SignedString(secretKey)
 
 }
+
+func VerifyJwt(jwtString string) (bool, error) {
+	claims := &Claims{}
+
+	jwtIsVerified, err := jwt.ParseWithClaims(jwtString, claims, func(t *jwt.Token) (any, error) {
+		return secretKey, nil
+	})
+	return jwtIsVerified.Valid, err
+}
