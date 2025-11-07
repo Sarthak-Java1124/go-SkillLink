@@ -8,7 +8,7 @@ import (
 )
 
 func DBConnect() *mongo.Client {
-	uri := "mongodb://localhost:27017/skilllink"
+	uri := "mongodb://localhost:27017/"
 	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
 
 	opts := options.Client().ApplyURI(uri).SetServerAPIOptions(serverAPI)

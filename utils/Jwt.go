@@ -28,11 +28,16 @@ func GenerateJwt(name string, email string) (string, error) {
 
 }
 
-func VerifyJwt(jwtString string) (bool, error) {
+func VerifyJwt(tokenString string) (*Claims, error) {
 	claims := &Claims{}
 
-	jwtIsVerified, err := jwt.ParseWithClaims(jwtString, claims, func(t *jwt.Token) (any, error) {
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(t *jwt.Token) (any, error) {
 		return secretKey, nil
 	})
-	return jwtIsVerified.Valid, err
+
+	if err != nil || !token.Valid {
+		return nil, err
+	}
+
+	return claims, nil
 }

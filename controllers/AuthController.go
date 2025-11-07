@@ -11,7 +11,7 @@ import (
 	"github.com/Sarthak-Java1124/go-SkillLink.git/utils"
 	"github.com/gin-gonic/gin"
 
-	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 func AuthControllerSignUp(c *gin.Context) {
@@ -23,7 +23,7 @@ func AuthControllerSignUp(c *gin.Context) {
 	}
 
 	dbClient := lib.DBConnect()
-	userCollection := dbClient.Database("skilllink").Collection("users")
+	userCollection := dbClient.Database("skillBackend").Collection("users")
 	isPresent, err := userCollection.CountDocuments(context.TODO(), bson.M{"email": body.Email})
 	if err != nil {
 		fmt.Println("The error in counting docs is : ", err)
@@ -61,27 +61,27 @@ func AuthControllerLogin(c *gin.Context) {
 		c.JSON(http.StatusForbidden, gin.H{"message": "Error in binding login json"})
 
 	}
-	fmt.Println("The binded json is : ", *&body)
 	dbClient := lib.DBConnect()
-	userInstance := dbClient.Database("skilllink").Collection("users")
+	userInstance := dbClient.Database("skillBackend").Collection("users")
+
 	var UserBody models.UserModel
 	err := userInstance.FindOne(context.TODO(), bson.M{"email": body.Email}).Decode(&UserBody)
 	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "No User with these credentials found"})
 		fmt.Println("The error in finding the user by login email is : ", err)
 		return
-
 	}
+
 	comparePassword := utils.VerifyHashPassword(*body.Password, *UserBody.Password)
 	if !comparePassword {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "The password didn't match"})
 
 	} else {
-		token, err := utils.GenerateJwt(*UserBody.Name, *UserBody.Name)
+		token, err := utils.GenerateJwt(UserBody.Name, UserBody.Email)
 		if err != nil {
 			c.JSON(http.StatusFailedDependency, gin.H{"message": "Error in parsing the jwt"})
 		}
 		c.SetCookie("token", token, 3600, "/", "localhost", true, true)
-
 		c.JSON(http.StatusAccepted, gin.H{"message": "You are successfully logged in"})
 	}
 
