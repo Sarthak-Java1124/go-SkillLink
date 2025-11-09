@@ -11,6 +11,17 @@ import (
 	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
+// GetUser godoc
+// @Summary      Get user by ID
+// @Description  Fetches a user document using its MongoDB ObjectID
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Param        id   path      string  true  "User ObjectID"
+// @Success      200  {object}  map[string]interface{}
+// @Failure      400  {object}  map[string]string
+// @Failure      404  {object}  map[string]string
+// @Router       /users/{id} [get]
 func GetUser(c *gin.Context) {
 	id := c.Param("id")
 	fmt.Println("The id we get from the params is : ", id)

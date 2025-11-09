@@ -14,12 +14,25 @@ import (
 	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
+// AuthControllerSignUp godoc
+// @Summary      Register a new user
+// @Description  Creates a user account with the provided payload
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        user  body      models.UserModel  true  "User registration payload"
+// @Success      201   {object}  map[string]string
+// @Failure      400   {object}  map[string]string
+// @Failure      417   {object}  map[string]string
+// @Failure      502   {object}  map[string]string
+// @Router       /auth/register [post]
 func AuthControllerSignUp(c *gin.Context) {
 	var body models.UserModel
 
 	if err := c.BindJSON(&body); err != nil {
 		fmt.Println("The error in binding the json is :", err)
 		c.JSON(http.StatusBadGateway, gin.H{"message": "There was an error in binding json"})
+		return
 	}
 
 	dbClient := lib.DBConnect()
@@ -30,6 +43,7 @@ func AuthControllerSignUp(c *gin.Context) {
 		c.JSON(http.StatusExpectationFailed, gin.H{
 			"message": "There was an error in counting documents",
 		})
+		return
 	}
 	if isPresent > 0 {
 		c.JSON(http.StatusBadGateway, gin.H{"error": "User already Exists"})
@@ -44,8 +58,10 @@ func AuthControllerSignUp(c *gin.Context) {
 	_, err = userCollection.InsertOne(context.TODO(), &body)
 	if err != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"message": "Cannot save in the DB"})
+		return
 	}
 
+	c.JSON(http.StatusCreated, gin.H{"message": "User registered successfully"})
 }
 
 type LoginStruct struct {
@@ -53,13 +69,25 @@ type LoginStruct struct {
 	Password *string
 }
 
+// AuthControllerLogin godoc
+// @Summary      Authenticate a user
+// @Description  Validates user credentials and returns a session cookie
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        credentials  body      LoginStruct  true  "User login credentials"
+// @Success      202          {object}  map[string]string
+// @Failure      400          {object}  map[string]string
+// @Failure      403          {object}  map[string]string
+// @Failure      424          {object}  map[string]string
+// @Router       /auth/login [post]
 func AuthControllerLogin(c *gin.Context) {
 	var body LoginStruct
 
 	if err := c.BindJSON(&body); err != nil {
 		fmt.Println("The error in binding login json is : ", err)
 		c.JSON(http.StatusForbidden, gin.H{"message": "Error in binding login json"})
-
+		return
 	}
 	dbClient := lib.DBConnect()
 	userInstance := dbClient.Database("skillBackend").Collection("users")

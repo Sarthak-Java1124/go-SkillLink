@@ -2,6 +2,7 @@ package routes
 
 import (
 	"github.com/Sarthak-Java1124/go-SkillLink.git/controllers"
+	bidcontroller "github.com/Sarthak-Java1124/go-SkillLink.git/controllers/Bid-Controller"
 	projectcontroller "github.com/Sarthak-Java1124/go-SkillLink.git/controllers/Project-Controller"
 	"github.com/gin-gonic/gin"
 )
@@ -19,13 +20,12 @@ func AuthRoutes(incomingRoutes *gin.Engine) {
 func ProjectRoutes(incomingRoutes *gin.Engine) {
 	incomingRoutes.POST("/projects", projectcontroller.PostProjectController)
 	incomingRoutes.GET("/project/:id", projectcontroller.GetFormData)
-	incomingRoutes.POST("/projects/:id/apply")
+	incomingRoutes.POST("/projects/:id/apply", bidcontroller.PostBids)
 	incomingRoutes.POST("/projects/:id/accept/:freelancerId")
-	incomingRoutes.GET("/projects/:id/applicants")
+	incomingRoutes.GET("/projects/:id/applicants", bidcontroller.GetBidData)
 }
 
 func ContractRoutes(incomingRoutes *gin.Engine) {
-
 	incomingRoutes.GET("/contracts/:id")
 	incomingRoutes.POST("/contracts/:id/submit-work")
 	incomingRoutes.POST("/contracts/:id/approve")

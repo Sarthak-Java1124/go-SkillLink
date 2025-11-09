@@ -1,0 +1,339 @@
+basePath: /
+definitions:
+  controllers.LoginStruct:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  models.Bids:
+    properties:
+      _id:
+        type: string
+      bid_amount:
+        type: integer
+      freelancer_id:
+        type: integer
+      pitch:
+        type: string
+    type: object
+  models.ProjectModel:
+    properties:
+      _id:
+        type: string
+      budget_max:
+        type: integer
+      budget_min:
+        type: integer
+      client_id:
+        type: integer
+      description:
+        type: string
+      status:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      title:
+        type: string
+    type: object
+  models.UserModel:
+    properties:
+      _id:
+        type: string
+      balance:
+        type: integer
+      country:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      rating:
+        type: string
+      role:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: dev@example.com
+    name: API Support
+  description: Short description of your API.
+  license:
+    name: MIT
+  termsOfService: https://example.com/terms
+  title: Your API Name
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Validates user credentials and returns a session cookie
+      parameters:
+      - description: User login credentials
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.LoginStruct'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "424":
+          description: Failed Dependency
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Authenticate a user
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Creates a user account with the provided payload
+      parameters:
+      - description: User registration payload
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserModel'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "417":
+          description: Expectation Failed
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "502":
+          description: Bad Gateway
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Register a new user
+      tags:
+      - auth
+  /contracts:
+    post:
+      consumes:
+      - application/json
+      description: Creates a contract between a client and freelancer (implementation
+        pending)
+      produces:
+      - application/json
+      responses: {}
+      summary: Create a contract (placeholder)
+      tags:
+      - contracts
+  /project/{id}:
+    get:
+      description: Retrieves a project associated with the provided client ID
+      parameters:
+      - description: Client ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get project by client ID
+      tags:
+      - projects
+  /projects:
+    post:
+      consumes:
+      - application/json
+      description: Stores a project document in the database
+      parameters:
+      - description: Project payload
+        in: body
+        name: project
+        required: true
+        schema:
+          $ref: '#/definitions/models.ProjectModel'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new project
+      tags:
+      - projects
+  /projects/{id}/applicants:
+    get:
+      description: Returns all bids submitted for the specified project
+      parameters:
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: List applicants for a project
+      tags:
+      - bids
+  /projects/{id}/apply:
+    post:
+      consumes:
+      - application/json
+      description: Adds a bid to the applicants collection for the specified project
+      parameters:
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Bid payload
+        in: body
+        name: bid
+        required: true
+        schema:
+          $ref: '#/definitions/models.Bids'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "202":
+          description: Accepted
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Submit a bid for a project
+      tags:
+      - bids
+  /users/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Fetches a user document using its MongoDB ObjectID
+      parameters:
+      - description: User ObjectID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get user by ID
+      tags:
+      - users
+schemes:
+- http
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

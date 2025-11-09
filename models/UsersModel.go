@@ -2,6 +2,8 @@ package models
 
 import "go.mongodb.org/mongo-driver/v2/bson"
 
+// UserModel represents a registered user in the system.
+// swagger:model UserModel
 type UserModel struct {
 	ID       bson.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
 	Name     string        `json:"name,omitempty" bson:"name,omitempty"`
